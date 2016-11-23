@@ -23,6 +23,9 @@ def printLogo():
 	print("Encoding files in {}".format(os.getcwd()))
 
 def encode(fIn, fOut):
+
+	print("Encoding \"{}\" to \"{}\"".format(fIn, fOut))
+
 	subprocess.call(["ffmpeg", "-i", fIn,
                          "-map", "0",
                          "-map_metadata", "0",
@@ -39,23 +42,36 @@ if __name__ == "__main__":
 	ffmpegDefaultCmd = "ffmpeg -i "
 	rawToken = "RAW"
 	encodeToken = "ENCODED"
+	extensions = [".mkv"]
 
 	for dirpath, dirnames, filenames in os.walk(os.curdir):
+
+		print("Currently in {}".format(os.getcwd() + dirpath))
 
 		# Check for directories containing raw files, encode to parent dir
 		if rawToken in dirpath:
 			for f in filenames:
-				encode(f, os.pardir + os.sep + f)
-			break
+				fName, ext = os.path.splitext(f)
+
+				if ext in extensions:
+					if not os.path.isfile(os.getcwd() + dirpath + os.pardir + os.sep + f):
+						encode(dirpath + os.sep + f, dirpath + os.sep + os.pardir + os.sep + f)
+					else:
+						print("Skipping {}".format(f))
+			continue
 
 		# Check for raw files, encode in same dir
-		for f in filenames:
-			if rawToken in f:
-				fName, ext = os.path.splitext(f)
-				fName.strip(rawToken)
-				fName.strip()
-				encode(f, fName + ext)
-			else:
-				fName, ext = os.path.splitext(f)
-				encode(f, fName + encodeToken + ext)
+		#for f in filenames:
+		#	if rawToken in f:
+		#		fName, ext = os.path.splitext(f)
+		#
+		#		if ext in extensions:
+		#			fName.strip(rawToken)
+		#			fName.strip()
+		#			encode(f, fName + ext)
+		#	else:
+		#		fName, ext = os.path.splitext(f)
+		#
+		#		if ext in extensions:
+		#			encode(f, fName + encodeToken + ext)
 
